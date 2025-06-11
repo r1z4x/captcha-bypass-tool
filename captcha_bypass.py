@@ -13,7 +13,7 @@ from pathlib import Path
 
 class LayerFrame(ttk.LabelFrame):
     def __init__(self, parent, app, layer_data):
-        super().__init__(parent, text=f"Katman {layer_data['id']}")
+        super().__init__(parent, text=f"Layer {layer_data['id']}")
         self.app = app
         self.layer_data = layer_data
         self.drag_data = {"x": 0, "y": 0, "item": None}
@@ -33,7 +33,7 @@ class LayerFrame(ttk.LabelFrame):
         type_frame = ttk.Frame(main_frame)
         type_frame.pack(side="left", fill="x", expand=True)
         
-        ttk.Label(type_frame, text="İşlem:").pack(side="left")
+        ttk.Label(type_frame, text="Operation:").pack(side="left")
         self.type_var = tk.StringVar(value=layer_data["type"])
         self.type_combo = ttk.Combobox(type_frame, textvariable=self.type_var, 
                                      values=["Binary", "Adaptive", "Otsu", "GaussianBlur", 
@@ -44,22 +44,22 @@ class LayerFrame(ttk.LabelFrame):
         
         # Add tooltip for operation types
         self.create_tooltip(self.type_combo, {
-            "Binary": "Basit eşikleme işlemi. Eşik değerinin üstündeki pikseller beyaz, altındakiler siyah yapılır.",
-            "Adaptive": "Adaptif eşikleme. Yerel bölgeye göre eşikleme yapar.",
-            "Otsu": "Otomatik eşikleme. Görüntü histogramına göre optimal eşik değerini bulur.",
-            "GaussianBlur": "Gauss bulanıklaştırma. Gürültü azaltma ve yumuşatma için kullanılır.",
-            "Invert": "Görüntüyü tersine çevirir.",
-            "RemoveSmallNoise": "Küçük gürültü noktalarını temizler.",
-            "RemoveThinLines": "İnce çizgileri kaldırır.",
-            "SmoothEdges": "Kenarları yumuşatır ve korur.",
-            "Morphology": "Morfolojik işlemler. Açma ve kapama operasyonları."
+            "Binary": "Simple thresholding operation. Pixels above threshold become white, below become black.",
+            "Adaptive": "Adaptive thresholding. Applies thresholding based on local region.",
+            "Otsu": "Automatic thresholding. Finds optimal threshold value based on image histogram.",
+            "GaussianBlur": "Gaussian blurring. Used for noise reduction and smoothing.",
+            "Invert": "Inverts the image colors.",
+            "RemoveSmallNoise": "Cleans small noise points.",
+            "RemoveThinLines": "Removes thin lines.",
+            "SmoothEdges": "Smooths and preserves edges.",
+            "Morphology": "Morphological operations. Opening and closing operations."
         })
         
         # Create value controls with tooltips
         self.value_frame = ttk.Frame(main_frame)
         self.value_frame.pack(side="left", fill="x", expand=True)
         
-        self.value_label = ttk.Label(self.value_frame, text="Değer:")
+        self.value_label = ttk.Label(self.value_frame, text="Value:")
         self.value_label.pack(side="left")
         self.value_var = tk.DoubleVar(value=layer_data["value"])
         self.value_scale = tk.Scale(self.value_frame, from_=0, to=1, 
@@ -71,7 +71,7 @@ class LayerFrame(ttk.LabelFrame):
         self.second_value_frame = ttk.Frame(main_frame)
         self.second_value_frame.pack(side="left", fill="x", expand=True)
         
-        self.second_value_label = ttk.Label(self.second_value_frame, text="İkinci Değer:")
+        self.second_value_label = ttk.Label(self.second_value_frame, text="Second Value:")
         self.second_value_label.pack(side="left")
         self.second_value_var = tk.DoubleVar(value=layer_data["second_value"])
         self.second_value_scale = tk.Scale(self.second_value_frame, from_=0, to=1,
@@ -83,7 +83,7 @@ class LayerFrame(ttk.LabelFrame):
         self.delete_button = ttk.Button(main_frame, text="×", width=3,
                                       command=self.delete_layer)
         self.delete_button.pack(side="right", padx=(5, 0))
-        self.create_tooltip(self.delete_button, "Bu katmanı sil")
+        self.create_tooltip(self.delete_button, "Delete this layer")
         
         # Initialize tooltips for value controls
         self.update_value_tooltips()
@@ -120,23 +120,23 @@ class LayerFrame(ttk.LabelFrame):
         op_type = self.type_var.get()
         
         # Update primary value tooltip
-        value_text = f"Değer: {self.value_var.get():.1f}"
+        value_text = f"Value: {self.value_var.get():.1f}"
         if op_type == "Binary":
             value_text += " (0-255)"
         elif op_type in ["Adaptive", "GaussianBlur", "RemoveSmallNoise", "RemoveThinLines", "SmoothEdges", "Morphology"]:
-            value_text += " (Kernel Boyutu)"
+            value_text += " (Kernel Size)"
         self.create_tooltip(self.value_scale, value_text)
         
         # Update secondary value tooltip
-        second_value_text = f"İkinci Değer: {self.second_value_var.get():.1f}"
+        second_value_text = f"Second Value: {self.second_value_var.get():.1f}"
         if op_type == "Adaptive":
-            second_value_text += " (C Değeri: -50-50)"
+            second_value_text += " (C Value: -50-50)"
         elif op_type in ["GaussianBlur", "SmoothEdges"]:
             second_value_text += " (Sigma: 0.1-3.0)"
         elif op_type in ["RemoveSmallNoise", "RemoveThinLines"]:
-            second_value_text += " (İterasyon: 1-5)"
+            second_value_text += " (Iterations: 1-5)"
         elif op_type == "Morphology":
-            second_value_text += " (0: Açma, 1: Kapama)"
+            second_value_text += " (0: Opening, 1: Closing)"
         self.create_tooltip(self.second_value_scale, second_value_text)
     
     def on_drag_start(self, event):
@@ -172,7 +172,7 @@ class LayerFrame(ttk.LabelFrame):
         layers = self.app.layers
         layers.sort(key=lambda x: x.winfo_y())
         for i, layer in enumerate(layers):
-            layer.configure(text=f"Katman {i+1}")
+            layer.configure(text=f"Layer {i+1}")
             layer.layer_data["id"] = i+1
 
     def on_type_change(self, event=None):
@@ -185,22 +185,22 @@ class LayerFrame(ttk.LabelFrame):
         
         # Configure scales based on operation type
         if op_type == "Binary":
-            self.value_label.config(text="Eşik Değeri")
+            self.value_label.config(text="Threshold Value")
             self.value_scale.config(from_=0, to=255, resolution=1.0)
             self.value_var.set(min(255, max(0, current_value)))
             self.second_value_frame.pack_forget()
             
         elif op_type == "Adaptive":
-            self.value_label.config(text="Blok Boyutu")
+            self.value_label.config(text="Block Size")
             self.value_scale.config(from_=3, to=99, resolution=1.0)
             self.value_var.set(min(99, max(3, current_value)))
-            self.second_value_label.config(text="C Değeri")
+            self.second_value_label.config(text="C Value")
             self.second_value_scale.config(from_=-50, to=50, resolution=1.0)
             self.second_value_var.set(min(50, max(-50, current_second_value)))
             self.second_value_frame.pack(side="left", fill="x", expand=True)
             
         elif op_type == "GaussianBlur":
-            self.value_label.config(text="Kernel Boyutu")
+            self.value_label.config(text="Kernel Size")
             self.value_scale.config(from_=1, to=15, resolution=1.0)
             self.value_var.set(min(15, max(1, current_value)))
             self.second_value_label.config(text="Sigma")
@@ -209,25 +209,25 @@ class LayerFrame(ttk.LabelFrame):
             self.second_value_frame.pack(side="left", fill="x", expand=True)
             
         elif op_type == "RemoveSmallNoise":
-            self.value_label.config(text="Kernel Boyutu")
+            self.value_label.config(text="Kernel Size")
             self.value_scale.config(from_=1, to=5, resolution=1.0)
             self.value_var.set(min(5, max(1, current_value)))
-            self.second_value_label.config(text="İterasyon")
+            self.second_value_label.config(text="Iterations")
             self.second_value_scale.config(from_=1, to=5, resolution=1.0)
             self.second_value_var.set(min(5, max(1, current_second_value)))
             self.second_value_frame.pack(side="left", fill="x", expand=True)
             
         elif op_type == "RemoveThinLines":
-            self.value_label.config(text="Kernel Boyutu")
+            self.value_label.config(text="Kernel Size")
             self.value_scale.config(from_=1, to=5, resolution=1.0)
             self.value_var.set(min(5, max(1, current_value)))
-            self.second_value_label.config(text="İterasyon")
+            self.second_value_label.config(text="Iterations")
             self.second_value_scale.config(from_=1, to=5, resolution=1.0)
             self.second_value_var.set(min(5, max(1, current_second_value)))
             self.second_value_frame.pack(side="left", fill="x", expand=True)
             
         elif op_type == "SmoothEdges":
-            self.value_label.config(text="Diametre")
+            self.value_label.config(text="Diameter")
             self.value_scale.config(from_=1, to=15, resolution=1.0)
             self.value_var.set(min(15, max(1, current_value)))
             self.second_value_label.config(text="Sigma")
@@ -236,10 +236,10 @@ class LayerFrame(ttk.LabelFrame):
             self.second_value_frame.pack(side="left", fill="x", expand=True)
             
         elif op_type == "Morphology":
-            self.value_label.config(text="Kernel Boyutu")
+            self.value_label.config(text="Kernel Size")
             self.value_scale.config(from_=1, to=5, resolution=1.0)
             self.value_var.set(min(5, max(1, current_value)))
-            self.second_value_label.config(text="İşlem Tipi")
+            self.second_value_label.config(text="Operation Type")
             self.second_value_scale.config(from_=0, to=1, resolution=1.0)
             self.second_value_var.set(min(1, max(0, current_second_value)))
             self.second_value_frame.pack(side="left", fill="x", expand=True)
@@ -302,7 +302,7 @@ class LayerFrame(ttk.LabelFrame):
 class CaptchaApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("🔍 Dynamic Threshold OCR GUI")
+        self.root.title("🔍 Captcha Bypass Tool")
 
         self.original_img = None
         self.processed_img = None
@@ -333,23 +333,23 @@ class CaptchaApp:
         # Original image preview
         self.original_canvas = tk.Label(preview_frame)
         self.original_canvas.grid(row=0, column=0, padx=5)
-        ttk.Label(preview_frame, text="Orijinal").grid(row=1, column=0)
+        ttk.Label(preview_frame, text="Original").grid(row=1, column=0)
 
         # Processed image preview
         self.processed_canvas = tk.Label(preview_frame)
         self.processed_canvas.grid(row=0, column=1, padx=5)
-        ttk.Label(preview_frame, text="İşlenmiş").grid(row=1, column=1)
+        ttk.Label(preview_frame, text="Processed").grid(row=1, column=1)
 
         # Control buttons
         control_frame = ttk.Frame(self.root)
         control_frame.grid(row=1, column=0, columnspan=3, pady=5)
         
-        ttk.Button(control_frame, text="📂 Görsel Yükle", command=self.load_image).pack(side="left", padx=5)
-        ttk.Button(control_frame, text="➕ Layer Ekle", command=self.add_layer).pack(side="left", padx=5)
-        ttk.Button(control_frame, text="💾 Kaydet", command=self.save_layers).pack(side="left", padx=5)
-        ttk.Button(control_frame, text="📂 Yükle", command=self.load_layers).pack(side="left", padx=5)
-        ttk.Button(control_frame, text="🧠 OCR Çöz", command=self.perform_ocr).pack(side="left", padx=5)
-        ttk.Button(control_frame, text="🔄 Sıfırla", command=self.reset_layers).pack(side="left", padx=5)
+        ttk.Button(control_frame, text="📂 Load Image", command=self.load_image).pack(side="left", padx=5)
+        ttk.Button(control_frame, text="➕ Add Layer", command=self.add_layer).pack(side="left", padx=5)
+        ttk.Button(control_frame, text="💾 Save", command=self.save_layers).pack(side="left", padx=5)
+        ttk.Button(control_frame, text="📂 Load", command=self.load_layers).pack(side="left", padx=5)
+        ttk.Button(control_frame, text="🧠 Solve OCR", command=self.perform_ocr).pack(side="left", padx=5)
+        ttk.Button(control_frame, text="🔄 Reset", command=self.reset_layers).pack(side="left", padx=5)
 
         # Layer container
         self.layer_container = tk.Frame(self.root)
@@ -361,7 +361,7 @@ class CaptchaApp:
         
         self.ocr_result = tk.StringVar()
         tk.Label(result_frame, textvariable=self.ocr_result, font=("Courier", 14), fg="blue").pack(side="left")
-        ttk.Button(result_frame, text="📋 Kopyala", command=self.copy_ocr_result).pack(side="left", padx=5)
+        ttk.Button(result_frame, text="📋 Copy", command=self.copy_ocr_result).pack(side="left", padx=5)
 
         # Progress bar
         self.progress = ttk.Progressbar(self.root, mode='determinate')
@@ -373,50 +373,60 @@ class CaptchaApp:
         
         # Presets menu
         presets_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Ayarlar", menu=presets_menu)
-        presets_menu.add_command(label="Mevcut Ayarları Kaydet", command=self.save_preset)
-        presets_menu.add_command(label="Ayarları Yükle", command=self.load_preset)
+        menubar.add_cascade(label="Settings", menu=presets_menu)
+        presets_menu.add_command(label="Save Current Settings", command=self.save_preset)
+        presets_menu.add_command(label="Load Settings", command=self.load_preset)
         presets_menu.add_separator()
-        presets_menu.add_command(label="Varsayılan Ayarları Yükle", command=self.load_default_preset)
-        presets_menu.add_command(label="Son Kullanılan Ayarları Yükle", command=self.load_last_preset)
+        presets_menu.add_command(label="Load Default Settings", command=self.load_default_preset)
+        presets_menu.add_command(label="Load Last Used Settings", command=self.load_last_preset)
         
         # Help menu
         help_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Yardım", menu=help_menu)
-        help_menu.add_command(label="Kullanım Kılavuzu", command=self.show_help)
-        help_menu.add_command(label="Hakkında", command=self.show_about)
+        menubar.add_cascade(label="Help", menu=help_menu)
+        help_menu.add_command(label="User Guide", command=self.show_help)
+        help_menu.add_command(label="About", command=self.show_about)
 
     def save_preset(self):
         if not self.layers:
-            messagebox.showwarning("Uyarı", "Kaydedilecek ayar bulunamadı!")
+            messagebox.showwarning("Warning", "No settings to save!")
             return
 
-        preset_name = simpledialog.askstring("Ayar Kaydet", 
-                                           "Ayar için bir isim girin:",
-                                           initialvalue="yeni_ayar")
+        preset_name = simpledialog.askstring("Save Settings", 
+                                           "Enter a name for the settings:",
+                                           initialvalue="new_preset")
         if not preset_name:
             return
 
         try:
             preset_path = self.presets_dir / f"{preset_name}.json"
-            layers_data = [layer.layer_data for layer in self.layers]
+            # Ensure all values are properly formatted before saving
+            layers_data = []
+            for layer in self.layers:
+                layer_data = {
+                    "id": layer.layer_data["id"],
+                    "type": layer.layer_data["type"],
+                    "value": float(layer.layer_data["value"]),  # Ensure value is float
+                    "second_value": float(layer.layer_data["second_value"])  # Ensure second_value is float
+                }
+                layers_data.append(layer_data)
+
             with open(preset_path, 'w') as f:
                 json.dump(layers_data, f, indent=2)
             
             self.last_used_preset = preset_name
-            messagebox.showinfo("Başarılı", f"Ayar '{preset_name}' olarak kaydedildi!")
+            messagebox.showinfo("Success", f"Settings saved as '{preset_name}'!")
         except Exception as e:
-            messagebox.showerror("Hata", f"Ayar kaydedilirken hata oluştu: {str(e)}")
+            messagebox.showerror("Error", f"Error saving settings: {str(e)}")
 
     def load_preset(self):
         preset_files = list(self.presets_dir.glob("*.json"))
         if not preset_files:
-            messagebox.showwarning("Uyarı", "Kayıtlı ayar bulunamadı!")
+            messagebox.showwarning("Warning", "No saved settings found!")
             return
 
         preset_names = [f.stem for f in preset_files]
-        preset_name = simpledialog.askstring("Ayar Yükle",
-                                           "Yüklenecek ayarı seçin:",
+        preset_name = simpledialog.askstring("Load Settings",
+                                           "Select settings to load:",
                                            initialvalue=self.last_used_preset or preset_names[0])
         if not preset_name:
             return
@@ -424,18 +434,37 @@ class CaptchaApp:
         try:
             preset_path = self.presets_dir / f"{preset_name}.json"
             if not preset_path.exists():
-                messagebox.showerror("Hata", f"'{preset_name}' ayarı bulunamadı!")
+                messagebox.showerror("Error", f"Settings '{preset_name}' not found!")
                 return
 
             with open(preset_path, 'r') as f:
                 layers_data = json.load(f)
+
+            # Validate and convert data before creating layers
+            for layer_data in layers_data:
+                # Ensure all required fields exist
+                required_fields = ["id", "type", "value", "second_value"]
+                if not all(field in layer_data for field in required_fields):
+                    raise ValueError("Invalid layer data format")
+
+                # Convert values to proper types
+                layer_data["id"] = int(layer_data["id"])
+                layer_data["value"] = float(layer_data["value"])
+                layer_data["second_value"] = float(layer_data["second_value"])
+
+                # Validate operation type
+                valid_types = ["Binary", "Adaptive", "Otsu", "GaussianBlur", 
+                             "Invert", "RemoveSmallNoise", "RemoveThinLines", 
+                             "SmoothEdges", "Morphology"]
+                if layer_data["type"] not in valid_types:
+                    raise ValueError(f"Invalid operation type: {layer_data['type']}")
 
             # Clear existing layers
             for layer in self.layers:
                 layer.destroy()
             self.layers.clear()
 
-            # Create new layers
+            # Create new layers with validated data
             for i, layer_data in enumerate(layers_data):
                 frame = LayerFrame(self.layer_container, self, layer_data)
                 frame.grid(row=i, column=0, pady=5, sticky="ew")
@@ -443,14 +472,14 @@ class CaptchaApp:
 
             self.last_used_preset = preset_name
             self.update_image()
-            messagebox.showinfo("Başarılı", f"'{preset_name}' ayarı yüklendi!")
+            messagebox.showinfo("Success", f"Settings '{preset_name}' loaded!")
         except Exception as e:
-            messagebox.showerror("Hata", f"Ayar yüklenirken hata oluştu: {str(e)}")
+            messagebox.showerror("Error", f"Error loading settings: {str(e)}")
 
     def load_default_preset(self):
-        default_preset = self.presets_dir / "varsayilan.json"
+        default_preset = self.presets_dir / "default.json"
         if not default_preset.exists():
-            messagebox.showwarning("Uyarı", "Varsayılan ayar bulunamadı!")
+            messagebox.showwarning("Warning", "Default settings not found!")
             return
 
         try:
@@ -468,20 +497,20 @@ class CaptchaApp:
                 frame.grid(row=i, column=0, pady=5, sticky="ew")
                 self.layers.append(frame)
 
-            self.last_used_preset = "varsayilan"
+            self.last_used_preset = "default"
             self.update_image()
-            messagebox.showinfo("Başarılı", "Varsayılan ayar yüklendi!")
+            messagebox.showinfo("Success", "Default settings loaded!")
         except Exception as e:
-            messagebox.showerror("Hata", f"Varsayılan ayar yüklenirken hata oluştu: {str(e)}")
+            messagebox.showerror("Error", f"Error loading default settings: {str(e)}")
 
     def load_last_preset(self):
         if not self.last_used_preset:
-            messagebox.showwarning("Uyarı", "Son kullanılan ayar bulunamadı!")
+            messagebox.showwarning("Warning", "No last used settings found!")
             return
 
         preset_path = self.presets_dir / f"{self.last_used_preset}.json"
         if not preset_path.exists():
-            messagebox.showerror("Hata", f"Son kullanılan ayar bulunamadı!")
+            messagebox.showerror("Error", "Last used settings not found!")
             return
 
         try:
@@ -500,62 +529,63 @@ class CaptchaApp:
                 self.layers.append(frame)
 
             self.update_image()
-            messagebox.showinfo("Başarılı", f"Son kullanılan ayar yüklendi!")
+            messagebox.showinfo("Success", "Last used settings loaded!")
         except Exception as e:
-            messagebox.showerror("Hata", f"Son kullanılan ayar yüklenirken hata oluştu: {str(e)}")
+            messagebox.showerror("Error", f"Error loading last used settings: {str(e)}")
 
     def show_help(self):
         help_text = """
-        🔍 Dynamic Threshold OCR GUI Kullanım Kılavuzu
+        🔍 Captcha Bypass Tool User Guide
 
-        1. Görsel Yükleme:
-           - "📂 Görsel Yükle" butonuna tıklayarak bir görsel seçin
-           - Desteklenen formatlar: JPG, JPEG, PNG
+        1. Loading Images:
+           - Click "📂 Load Image" to select a captcha image
+           - Supported formats: JPG, JPEG, PNG
 
-        2. Katman İşlemleri:
-           - "➕ Layer Ekle" ile yeni bir işlem katmanı ekleyin
-           - Her katman için işlem tipi ve parametreleri ayarlayın
-           - Katmanları sürükle-bırak arayüzünde sıralayabilirsiniz
-           - "×" butonu ile katmanı silebilirsiniz
+        2. Layer Operations:
+           - Add a new processing layer with "➕ Add Layer"
+           - Configure operation type and parameters for each layer
+           - Reorder layers using drag-and-drop interface
+           - Delete layers using the "×" button
 
-        3. Ayar Yönetimi:
-           - Ayarlar menüsünden mevcut ayarları kaydedebilirsiniz
-           - Kaydedilen ayarları başka görsellerde kullanabilirsiniz
-           - Varsayılan ayarları yükleyebilirsiniz
-           - Son kullanılan ayarları hızlıca yükleyebilirsiniz
+        3. Settings Management:
+           - Save current settings from the settings menu
+           - Use saved settings with other images
+           - Load default settings
+           - Quickly load last used settings
 
-        4. OCR İşlemi:
-           - "🧠 OCR Çöz" butonu ile metin tanıma işlemini başlatın
-           - Sonuç otomatik olarak gösterilir
-           - "📋 Kopyala" ile sonucu panoya kopyalayabilirsiniz
+        4. OCR Process:
+           - Start text recognition with "🧠 Solve OCR"
+           - Results are displayed automatically
+           - Copy results to clipboard with "📋 Copy"
 
-        5. İşlem Tipleri:
-           - Binary: Basit eşikleme
-           - Adaptive: Adaptif eşikleme
-           - Otsu: Otomatik eşikleme
-           - GaussianBlur: Bulanıklaştırma
-           - RemoveSmallNoise: Gürültü temizleme
-           - RemoveThinLines: İnce çizgi temizleme
-           - SmoothEdges: Kenar yumuşatma
-           - Morphology: Morfolojik işlemler
+        5. Operation Types:
+           - Binary: Simple thresholding
+           - Adaptive: Adaptive thresholding
+           - Otsu: Automatic thresholding
+           - GaussianBlur: Blurring
+           - RemoveSmallNoise: Noise removal
+           - RemoveThinLines: Thin line removal
+           - SmoothEdges: Edge smoothing
+           - Morphology: Morphological operations
         """
-        messagebox.showinfo("Kullanım Kılavuzu", help_text)
+        messagebox.showinfo("User Guide", help_text)
 
     def show_about(self):
         about_text = """
-        🔍 Dynamic Threshold OCR GUI
-        Versiyon 1.0
+        🔍 Captcha Bypass Tool
+        Version 1.0
 
-        Bu uygulama, görüntü işleme ve OCR işlemlerini
-        kolaylaştırmak için tasarlanmıştır.
+        This application is designed to facilitate
+        automated captcha solving using advanced
+        image processing techniques and OCR.
 
-        Özellikler:
-        - Çoklu katman desteği
-        - Sürükle-bırak arayüz
-        - Ayar yönetimi
-        - Tesseract OCR entegrasyonu
+        Features:
+        - Multi-layer support
+        - Drag-and-drop interface
+        - Settings management
+        - Tesseract OCR integration
         """
-        messagebox.showinfo("Hakkında", about_text)
+        messagebox.showinfo("About", about_text)
 
     def find_layer_position(self, layer_frame):
         # Find the new position based on the layer's current position
@@ -584,7 +614,7 @@ class CaptchaApp:
         self.update_image()
 
     def reset_layers(self):
-        if messagebox.askyesno("Onay", "Tüm layer'ları sıfırlamak istediğinizden emin misiniz?"):
+        if messagebox.askyesno("Confirm", "Are you sure you want to reset all layers?"):
             for layer in self.layers:
                 layer.destroy()
             self.layers.clear()
@@ -594,17 +624,17 @@ class CaptchaApp:
         try:
             pytesseract.get_tesseract_version()
         except Exception as e:
-            messagebox.showerror("Hata", "Tesseract OCR yüklü değil!\nLütfen 'brew install tesseract' komutunu çalıştırın.")
+            messagebox.showerror("Error", "Tesseract OCR is not installed!\nPlease run 'brew install tesseract' command.")
 
     def load_image(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Görseller", "*.jpg *.jpeg *.png")])
+        file_path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.jpeg *.png")])
         if not file_path:
             return
 
         try:
             self.original_img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
             if self.original_img is None:
-                raise Exception("Görsel yüklenemedi")
+                raise Exception("Failed to load image")
             
             self.update_preview()
             self.layers.clear()
@@ -613,7 +643,7 @@ class CaptchaApp:
             self.layer_container.grid(row=2, column=0, columnspan=3)
             self.update_image()
         except Exception as e:
-            messagebox.showerror("Hata", f"Görsel yüklenirken hata oluştu: {str(e)}")
+            messagebox.showerror("Error", f"Error loading image: {str(e)}")
 
     def update_preview(self):
         if self.original_img is not None:
@@ -655,7 +685,7 @@ class CaptchaApp:
 
     def save_layers(self):
         if not self.layers:
-            messagebox.showwarning("Uyarı", "Kaydedilecek layer bulunamadı!")
+            messagebox.showwarning("Warning", "No layers to save!")
             return
 
         file_path = filedialog.asksaveasfilename(
@@ -666,12 +696,22 @@ class CaptchaApp:
             return
 
         try:
-            layers_data = [layer.layer_data for layer in self.layers]
+            # Ensure all values are properly formatted before saving
+            layers_data = []
+            for layer in self.layers:
+                layer_data = {
+                    "id": layer.layer_data["id"],
+                    "type": layer.layer_data["type"],
+                    "value": float(layer.layer_data["value"]),  # Ensure value is float
+                    "second_value": float(layer.layer_data["second_value"])  # Ensure second_value is float
+                }
+                layers_data.append(layer_data)
+
             with open(file_path, 'w') as f:
                 json.dump(layers_data, f, indent=2)
-            messagebox.showinfo("Başarılı", "Layer'lar başarıyla kaydedildi!")
+            messagebox.showinfo("Success", "Layers saved successfully!")
         except Exception as e:
-            messagebox.showerror("Hata", f"Layer'lar kaydedilirken hata oluştu: {str(e)}")
+            messagebox.showerror("Error", f"Error saving layers: {str(e)}")
 
     def load_layers(self):
         file_path = filedialog.askopenfilename(
@@ -684,21 +724,40 @@ class CaptchaApp:
             with open(file_path, 'r') as f:
                 layers_data = json.load(f)
 
+            # Validate and convert data before creating layers
+            for layer_data in layers_data:
+                # Ensure all required fields exist
+                required_fields = ["id", "type", "value", "second_value"]
+                if not all(field in layer_data for field in required_fields):
+                    raise ValueError("Invalid layer data format")
+
+                # Convert values to proper types
+                layer_data["id"] = int(layer_data["id"])
+                layer_data["value"] = float(layer_data["value"])
+                layer_data["second_value"] = float(layer_data["second_value"])
+
+                # Validate operation type
+                valid_types = ["Binary", "Adaptive", "Otsu", "GaussianBlur", 
+                             "Invert", "RemoveSmallNoise", "RemoveThinLines", 
+                             "SmoothEdges", "Morphology"]
+                if layer_data["type"] not in valid_types:
+                    raise ValueError(f"Invalid operation type: {layer_data['type']}")
+
             # Clear existing layers
             for layer in self.layers:
                 layer.destroy()
             self.layers.clear()
 
-            # Create new layers
+            # Create new layers with validated data
             for i, layer_data in enumerate(layers_data):
                 frame = LayerFrame(self.layer_container, self, layer_data)
                 frame.grid(row=i, column=0, pady=5, sticky="ew")
                 self.layers.append(frame)
 
             self.update_image()
-            messagebox.showinfo("Başarılı", "Layer'lar başarıyla yüklendi!")
+            messagebox.showinfo("Success", "Layers loaded successfully!")
         except Exception as e:
-            messagebox.showerror("Hata", f"Layer'lar yüklenirken hata oluştu: {str(e)}")
+            messagebox.showerror("Error", f"Error loading layers: {str(e)}")
 
     def apply_layers(self, img):
         result = img.copy()
@@ -800,10 +859,10 @@ class CaptchaApp:
                 self.root.update_idletasks()
 
             except Exception as e:
-                error_msg = f"Layer {i+1} işlenirken hata oluştu: {str(e)}"
+                error_msg = f"Layer {i+1} processed with error: {str(e)}"
                 print(error_msg)
                 try:
-                    messagebox.showerror("Hata", error_msg)
+                    messagebox.showerror("Error", error_msg)
                 except:
                     pass
                 return result
@@ -818,7 +877,7 @@ class CaptchaApp:
 
     def perform_ocr(self):
         if self.processed_img is None:
-            messagebox.showwarning("Uyarı", "Lütfen önce bir görsel yükleyin!")
+            messagebox.showwarning("Warning", "Please load an image first!")
             return
 
         try:
@@ -826,13 +885,13 @@ class CaptchaApp:
             text = pytesseract.image_to_string(self.processed_img, config=config)
             self.ocr_result.set(f"OCR: {text.strip()}")
         except Exception as e:
-            messagebox.showerror("Hata", f"OCR işlemi sırasında hata oluştu: {str(e)}")
+            messagebox.showerror("Error", f"Error during OCR process: {str(e)}")
 
     def copy_ocr_result(self):
         if self.ocr_result.get():
             self.root.clipboard_clear()
             self.root.clipboard_append(self.ocr_result.get().replace("OCR: ", ""))
-            messagebox.showinfo("Başarılı", "OCR sonucu panoya kopyalandı!")
+            messagebox.showinfo("Success", "OCR result copied to clipboard!")
 
     def reorder_layers(self):
         """Reorder layers based on their vertical position"""
@@ -842,7 +901,7 @@ class CaptchaApp:
         # Update layer positions and IDs
         for i, layer in enumerate(self.layers):
             layer.grid(row=i, column=0, pady=5, sticky="ew")
-            layer.configure(text=f"Katman {i+1}")
+            layer.configure(text=f"Layer {i+1}")
             layer.layer_data["id"] = i+1
         
         # Update the image to reflect the new layer order
